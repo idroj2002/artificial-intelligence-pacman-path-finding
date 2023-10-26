@@ -118,14 +118,93 @@ def depthFirstSearch(problem: SearchProblem):
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    node = Node(problem.getStartState())
+    if problem.isGoalState(node.state):
+        return node.get_actions_from_root()
+    
+    expanded = set()
+    fringe = util.Queue()
+    fringe.push(node)
+    
+    while not fringe.isEmpty():
+        node = fringe.pop()
+        expanded.add(node.state)
+        for s, a, c in problem.getSuccessors(node.state):
+            if s not in expanded:
+                next_node = Node(
+                    state=s,
+                    action=a,
+                    cost=node.cost + c,
+                    parent=node,
+                )
+                if problem.isGoalState(next_node.state):
+                    return next_node.get_actions_from_root()
+                fringe.push(next_node)
+
+    raise Exception("No solution ¯\_(ツ)_/¯")
 
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    """node = Node(problem.getStartState())
+    if problem.isGoalState(node.state):
+        return node.get_actions_from_root()
+
+    expanded = set()
+    fringe = util.PriorityQueue()  # Change this to use a priority queue for UCS
+    fringe.push(node, 0)  # The second argument is the initial priority (cost)
+
+    while not fringe.isEmpty():
+        node = fringe.pop()
+        if node.state not in expanded:
+            expanded.add(node.state)
+            if problem.isGoalState(node.state):
+                return node.get_actions_from_root()
+
+            for s, a, c in problem.getSuccessors(node.state):
+                if s not in expanded:
+                    next_node = Node(
+                        state=s,
+                        action=a,
+                        cost=node.cost + c,
+                        parent=node,
+                    )
+                    fringe.push(next_node, next_node.cost)  # Push with the updated cost
+
+    raise Exception("No solution ¯\_(ツ)_/¯")"""
+
+    node = Node(problem.getStartState())
+    if problem.isGoalState(node.state):
+        return node.get_actions_from_root()
+
+    expanded = set()
+    meta = {}  # Custom meta information dictionary
+
+    fringe = []  # Custom fringe data structure (you can use a list)
+    fringe.append(node)
+
+    while fringe:
+        node = min(fringe, key=lambda n: n.cost)
+        fringe.remove(node)
+
+        if problem.isGoalState(node.state):
+            return node.get_actions_from_root()
+
+        if node.state not in expanded or meta[node.state][1] > node.cost:
+            expanded.add(node.state)
+            meta[node.state] = (1, node.cost)
+
+            for s, a, c in problem.getSuccessors(node.state):
+                if s not in expanded or (s in meta and meta[s][1] > node.cost + c):
+                    next_node = Node(
+                        state=s,
+                        action=a,
+                        cost=node.cost + c,
+                        parent=node,
+                    )
+                    fringe.append(next_node)
+
+    raise Exception("No solution ¯\_(ツ)_/¯")
 
 
 def nullHeuristic(state, problem=None):
@@ -139,7 +218,65 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    """node = Node(problem.getStartState())
+    if problem.isGoalState(node.state):
+        return node.get_actions_from_root()
+
+    expanded = set()
+    fringe = util.PriorityQueue()
+    fringe.push(node, heuristic(node.state, problem))  # Add heuristic to prioritize based on A*
+
+    while not fringe.isEmpty():
+        node = fringe.pop()
+        if node.state not in expanded:
+            expanded.add(node.state)
+            if problem.isGoalState(node.state):
+                return node.get_actions_from_root()
+
+            for s, a, c in problem.getSuccessors(node.state):
+                if s not in expanded:
+                    next_node = Node(
+                        state=s,
+                        action=a,
+                        cost=node.cost + c,
+                        parent=node,
+                    )
+                    fringe.push(next_node, next_node.cost + heuristic(next_node.state, problem))
+
+    raise Exception("No solution ¯\_(ツ)_/¯")
+    """
+    node = Node(problem.getStartState())
+    if problem.isGoalState(node.state):
+        return node.get_actions_from_root()
+
+    expanded = set()
+    meta = {}  # Custom meta information dictionary
+
+    fringe = []  # Custom fringe data structure (you can use a list)
+    fringe.append(node)
+
+    while fringe:
+        node = min(fringe, key=lambda n: n.cost + heuristic(n.state, problem))
+        fringe.remove(node)
+
+        if problem.isGoalState(node.state):
+            return node.get_actions_from_root()
+
+        if node.state not in expanded or meta[node.state][1] > node.cost:
+            expanded.add(node.state)
+            meta[node.state] = (1, node.cost)
+
+            for s, a, c in problem.getSuccessors(node.state):
+                if s not in expanded or (s in meta and meta[s][1] > node.cost + c):
+                    next_node = Node(
+                        state=s,
+                        action=a,
+                        cost=node.cost + c,
+                        parent=node,
+                    )
+                    fringe.append(next_node)
+
+    raise Exception("No solution ¯\_(ツ)_/¯")
 
 
 # Abbreviations
