@@ -215,7 +215,7 @@ class PositionSearchProblem(search.SearchProblem):
 
         return isGoal
 
-    def getSuccessors(self, state):
+    def getSuccessors(self, staute):
         """
         Returns successor states, the actions they require, and a cost of 1.
 
@@ -434,11 +434,33 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
+    position, visited_old = state
     corners = problem.corners  # These are the corner coordinates
     walls = problem.walls  # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0  # Default to trivial solution
+
+    visited = {
+                (cv, cp)
+                for cp, cv in zip(
+                    corners,
+                    visited_old,
+                )
+    }
+
+    heuristic = 0
+
+    for corner in visited:
+        if not corner[0]:
+            distance_squared = (corner[1][0] - position[0]) ** 2 + (corner[1][1] - position[1]) ** 2
+            newHeuristic = pow(distance_squared, 2)
+            heuristic = min(heuristic, newHeuristic)
+    
+    "The Manhattan distance heuristic for a PositionSearchProblem"
+    """xy1 = position
+    xy2 = problem.goal
+    return sqrt((xy1[0] - xy2[0])**2 + (xy1[1] - xy2[1])**2)"""
+    return heuristic  # Default to trivial solution
 
 
 class AStarCornersAgent(SearchAgent):
@@ -539,7 +561,7 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     are.
 
     If you want to *store* information to be reused in other calls to the
-    heuristic, there is a dictionary called problem.heuristicInfo that you can
+    heuristic, there is a dictionary called problemisGoalState.heuristicInfo that you can
     use. For example, if you only want to count the walls once and store that
     value, try: problem.heuristicInfo['wallCount'] = problem.walls.count()
     Subsequent calls to this heuristic can access
