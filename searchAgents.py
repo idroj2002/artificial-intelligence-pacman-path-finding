@@ -459,7 +459,7 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     heuristic = sys.maxsize
     
     for corner in visited:
-        if not corner[0]:
+        #if not corner[0]:
             # Si no se ha visitado la esquina
             distance_squared = (corner[1][0] - position[0]) ** 2 + (corner[1][1] - position[1]) ** 2
             newHeuristic = (distance_squared) ** 0.5
@@ -573,7 +573,22 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
+    
+    foodPosition = []
+    for i in range(foodGrid.width):
+        for j in range(foodGrid.height):
+            if foodGrid[i][j] == True:
+                foodPosition.append((i, j))
+
+    heuristic = sys.maxsize
+    for pos in foodPosition:
+        # Si no se ha visitado la esquina
+        distance_squared = (pos[0] - position[0]) ** 2 + (pos[1] - position[1]) ** 2
+        newHeuristic = (distance_squared) ** 0.5
+        heuristic = min(heuristic, newHeuristic)
+    
+    return heuristic
+
     return 0
 
 
