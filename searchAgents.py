@@ -446,26 +446,24 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
                     visited_old,
                 )
     }
-
-    totsTrue = True
-    for visit in visited:
-        if not visit[0]:
-            totsTrue = False
-    if totsTrue:
-        print(visited)
-        print(visited_old)
-        print('\n')
+    
+    cornersNotVisited = 0
+    for corner in visited:
+        if not corner[0]:
+            cornersNotVisited += 1
+    
+    if cornersNotVisited == 0:
+        return 0
 
     heuristic = sys.maxsize
-    
     for corner in visited:
-        #if not corner[0]:
+        if not corner[0]:
             # Si no se ha visitado la esquina
             distance_squared = (corner[1][0] - position[0]) ** 2 + (corner[1][1] - position[1]) ** 2
             newHeuristic = (distance_squared) ** 0.5
             heuristic = min(heuristic, newHeuristic)
 
-    return heuristic
+    return heuristic + cornersNotVisited
 
 
 class AStarCornersAgent(SearchAgent):
@@ -577,19 +575,21 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     foodPosition = []
     for i in range(foodGrid.width):
         for j in range(foodGrid.height):
-            if foodGrid[i][j] == True:
+            if foodGrid[i][j]:
                 foodPosition.append((i, j))
+    
+    if not foodPosition:
+        return 0
 
+    estimatedToCollectAllCells = 0
     heuristic = sys.maxsize
     for pos in foodPosition:
-        # Si no se ha visitado la esquina
+        # Para cada comida
         distance_squared = (pos[0] - position[0]) ** 2 + (pos[1] - position[1]) ** 2
         newHeuristic = (distance_squared) ** 0.5
-        heuristic = min(heuristic, newHeuristic)
-    
-    return heuristic
+        heuristic = min(heuristic, newHeuristic) + len(foodPosition)
 
-    return 0
+    return heuristic
 
 
 class ClosestDotSearchAgent(SearchAgent):
