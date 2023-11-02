@@ -38,6 +38,7 @@ from typing import List, Sequence, Tuple, Any
 from game import Directions
 from game import Agent
 from game import Actions
+import itertools
 import util
 import time
 import search
@@ -438,25 +439,56 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     position, visited_old = state
     corners = problem.corners  # These are the corner coordinates
     walls = problem.walls  # These are the walls of the maze, as a Grid (game.py)
+    
+    unvisited_corners = [corner for corner, visited in zip(corners, visited_old) if not visited]
 
-    visited = {
-                (cv, cp)
-                for cp, cv in zip(
-                    corners,
-                    visited_old,
-                )
-    }
+    if not unvisited_corners:
+        return 0  # Todas las esquinas ya han sido visitadas, no se requiere movimiento.
 
-    heuristic = sys.maxsize
-    for corner in visited:
-        if not corner[0]:
-            # Si no se ha visitado la esquina
-            distance_squared = (corner[1][0] - position[0]) ** 2 + (corner[1][1] - position[1]) ** 2
-            newHeuristic = (distance_squared) ** 0.5
-            heuristic = min(heuristic, newHeuristic)
-    if heuristic == sys.maxsize:
-        return 0
-    return heuristic
+    min_heuristic = float('inf')
+
+    for perm in itertools.permutations(unvisited_corners):
+        current_pos = position
+        heuristic = 0
+
+        for next_corner in perm:
+            # Calcular la distancia de Manhattan a la próxima esquina no visitada
+            distance = manhattanDistance(current_pos, next_corner)
+
+            # Considerar muros directos entre la posición actual y la próxima esquina
+            if wallBetween(next_corner, current_pos, walls):
+                distance += 1
+
+            heuristic += distance
+            current_pos = next_corner
+
+        min_heuristic = min(min_heuristic, heuristic)
+
+    return min_heuristic
+
+def manhattanDistance(pos1, pos2):
+    return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
+
+def wallBetween(food, cell, walls):
+    if food == cell:
+        return False
+    if food[0] == cell[0]:
+        firstPos = min(food[1], cell[1])
+        lastPos = max(food[1], cell[1])
+        i = firstPos
+        while i != lastPos:
+            if walls[food[0]][i]:
+                return True
+            i += 1
+    elif food[1] == cell[1]:
+        firstPos = min(food[0], cell[0])
+        lastPos = max(food[0], cell[0])
+        i = firstPos
+        while i != lastPos:
+            if walls[i][food[1]]:
+                return True
+            i += 1
+    return False
 
 
 class AStarCornersAgent(SearchAgent):
@@ -576,11 +608,11 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
 
     estimatedToCollectAllCells = 0
     heuristic = sys.maxsize
-    for pos in foodPosition:
+    for posX, posY in foodPosition:
         # Para cada comida
-        distance_squared = (pos[0] - position[0]) ** 2 + (pos[1] - position[1]) ** 2
+        distance_squared = (posX - position[0]) ** 2 + (posY - position[1]) ** 2
         newHeuristic = (distance_squared) ** 0.5
-        heuristic = min(heuristic, newHeuristic) + len(foodPosition)
+        heuristic = min(heuristic, newHeuristic)
 
     return heuristic
 
