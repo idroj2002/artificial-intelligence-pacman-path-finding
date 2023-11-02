@@ -216,7 +216,7 @@ class PositionSearchProblem(search.SearchProblem):
 
         return isGoal
 
-    def getSuccessors(self, staute):
+    def getSuccessors(self, state):
         """
         Returns successor states, the actions they require, and a cost of 1.
 
@@ -446,14 +446,6 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
                     visited_old,
                 )
     }
-    
-    cornersNotVisited = 0
-    for corner in visited:
-        if not corner[0]:
-            cornersNotVisited += 1
-    
-    if cornersNotVisited == 0:
-        return 0
 
     heuristic = sys.maxsize
     for corner in visited:
@@ -462,8 +454,9 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
             distance_squared = (corner[1][0] - position[0]) ** 2 + (corner[1][1] - position[1]) ** 2
             newHeuristic = (distance_squared) ** 0.5
             heuristic = min(heuristic, newHeuristic)
-
-    return heuristic + cornersNotVisited
+    if heuristic == sys.maxsize:
+        return 0
+    return heuristic
 
 
 class AStarCornersAgent(SearchAgent):
