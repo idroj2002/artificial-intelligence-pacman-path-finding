@@ -457,7 +457,7 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
 
             # Considerar muros directos entre la posición actual y la próxima esquina
             if wallBetween(next_corner, current_pos, walls):
-                distance += 1
+                distance += 2
 
             heuristic += distance
             current_pos = next_corner
@@ -595,7 +595,8 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     Subsequent calls to this heuristic can access
     problem.heuristicInfo['wallCount']
     """
-    position, foodGrid = state
+    """position, foodGrid = state
+    walls = problem.walls
     
     foodPosition = []
     for i in range(foodGrid.width):
@@ -606,16 +607,104 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     if not foodPosition:
         return 0
 
-    estimatedToCollectAllCells = 0
     heuristic = sys.maxsize
-    for posX, posY in foodPosition:
+    for pos in foodPosition:
         # Para cada comida
-        distance_squared = (posX - position[0]) ** 2 + (posY - position[1]) ** 2
-        newHeuristic = (distance_squared) ** 0.5
+        newHeuristic = manhattanDistance(pos, position)
+        if wallBetween(pos, position, walls):
+                newHeuristic += 2
         heuristic = min(heuristic, newHeuristic)
 
+    return heuristic"""
+    position, foodGrid = state
+    walls = problem.walls
+    foodPosition = []
+    
+    for i in range(foodGrid.width):
+        for j in range(foodGrid.height):
+            if foodGrid[i][j]:
+                foodPosition.append((i, j))
+                
+    if not foodPosition:
+        return 0  # No hay comida restante, no se requiere movimiento.
+
+    # Calcular el árbol de expansión mínima (MST) en el grafo de alimentos
+    mst = calculateMST(foodPosition)
+    
+    # Calcular recorrido al nodo más cercano
+    minDistance = float('inf')
+    for food in foodPosition:
+        distance = manhattanDistance(position, food)
+        if wallBetween(food, position, walls):
+            distance += 2
+        minDistance = min(minDistance, distance)
+    if minDistance == float('inf'):
+        minDistance = 0
+
+    # Sumar las distancias en el MST y minDistance
+    heuristic = sum(manhattanDistance(a, b) for a, b in mst) + minDistance
+    
     return heuristic
 
+def wallBetween(food, cell, walls):
+    if food == cell:
+        return False
+    if food[0] == cell[0]:
+        firstPos = min(food[1], cell[1])
+        lastPos = max(food[1], cell[1])
+        i = firstPos
+        while i != lastPos:
+            if walls[food[0]][i]:
+                return True
+            i += 1
+    elif food[1] == cell[1]:
+        firstPos = min(food[0], cell[0])
+        lastPos = max(food[0], cell[0])
+        i = firstPos
+        while i != lastPos:
+            if walls[i][food[1]]:
+                return True
+            i += 1
+    return False
+
+def calculateMST(vertices):
+    # Algoritmo de Kruskal para calcular el MST
+    # Devuelve una lista de aristas que componen el MST
+
+    # Calcula todas las combinaciones posibles de aristas entre los vértices
+    edges = [(a, b) for a, b in itertools.permutations(vertices, 2)]
+
+    # Ordena las aristas por distancia
+    edges.sort(key=lambda edge: util.manhattanDistance(edge[0], edge[1]))
+
+    # Inicializa el MST vacío
+    mst = []
+    parent = {v: v for v in vertices}
+
+    # Función para encontrar el conjunto al que pertenece un vértice
+    def find(v):
+        if parent[v] == v:
+            return v
+        return find(parent[v])
+
+    # Función para unir dos conjuntos en el MST
+    def union(a, b):
+        parent_a = find(a)
+        parent_b = find(b)
+        parent[parent_a] = parent_b
+
+    # Construye el MST
+    for edge in edges:
+        a, b = edge
+        if find(a) != find(b):
+            mst.append(edge)
+            union(a, b)
+
+    return mst
+    
+
+def manhattanDistance(pos1, pos2):
+    return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
