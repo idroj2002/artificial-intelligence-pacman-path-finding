@@ -131,8 +131,8 @@ def uniformCostSearch(problem: SearchProblem):
         return node.get_actions_from_root()
 
     expanded = set()
-    fringe = util.PriorityQueue()  # Change this to use a priority queue for UCS
-    fringe.push(node, 0)  # The second argument is the initial priority (cost)
+    fringe = util.PriorityQueue()
+    fringe.push(node, 0)    # El segundo argumento es la prioridad inicial
 
     while not fringe.isEmpty():
         node = fringe.pop()
@@ -149,7 +149,7 @@ def uniformCostSearch(problem: SearchProblem):
                         cost=node.cost + c,
                         parent=node,
                     )
-                    fringe.push(next_node, next_node.cost)  # Push with the updated cost
+                    fringe.push(next_node, next_node.cost)
 
     raise Exception("No solution ¯\_(ツ)_/¯")"""
 
@@ -158,9 +158,9 @@ def uniformCostSearch(problem: SearchProblem):
         return node.get_actions_from_root()
 
     expanded = set()
-    meta = {}  # Custom meta information dictionary
+    meta = {}
 
-    fringe = []  # Custom fringe data structure (you can use a list)
+    fringe = []
     fringe.append(node)
 
     while fringe:
@@ -197,14 +197,13 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
     """node = Node(problem.getStartState())
     if problem.isGoalState(node.state):
         return node.get_actions_from_root()
 
     expanded = set()
     fringe = util.PriorityQueue()
-    fringe.push(node, heuristic(node.state, problem))  # Add heuristic to prioritize based on A*
+    fringe.push(node, heuristic(node.state, problem))
 
     while not fringe.isEmpty():
         node = fringe.pop()
@@ -230,9 +229,9 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
         return node.get_actions_from_root()
 
     expanded = set()
-    meta = {}  # Custom meta information dictionary
+    meta = {}
 
-    fringe = []  # Custom fringe data structure (you can use a list)
+    fringe = []
     fringe.append(node)
 
     while fringe:
