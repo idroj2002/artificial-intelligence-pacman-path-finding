@@ -675,7 +675,7 @@ def calculateMST(vertices):
     edges = [(a, b) for a, b in itertools.permutations(vertices, 2)]
 
     # Ordena las aristas por distancia
-    edges.sort(key=lambda edge: util.manhattanDistance(edge[0], edge[1]))
+    edges.sort(key=lambda edge: manhattanDistance(edge[0], edge[1]))
 
     # Inicializa el MST vacío
     mst = []
