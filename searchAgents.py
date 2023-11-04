@@ -595,27 +595,6 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     Subsequent calls to this heuristic can access
     problem.heuristicInfo['wallCount']
     """
-    """position, foodGrid = state
-    walls = problem.walls
-    
-    foodPosition = []
-    for i in range(foodGrid.width):
-        for j in range(foodGrid.height):
-            if foodGrid[i][j]:
-                foodPosition.append((i, j))
-    
-    if not foodPosition:
-        return 0
-
-    heuristic = sys.maxsize
-    for pos in foodPosition:
-        # Para cada comida
-        newHeuristic = manhattanDistance(pos, position)
-        if wallBetween(pos, position, walls):
-                newHeuristic += 2
-        heuristic = min(heuristic, newHeuristic)
-
-    return heuristic"""
     position, foodGrid = state
     walls = problem.walls
     foodPosition = []
@@ -638,8 +617,6 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
         if wallBetween(food, position, walls):
             distance += 2
         minDistance = min(minDistance, distance)
-    if minDistance == float('inf'):
-        minDistance = 0
 
     # Sumar las distancias en el MST y minDistance
     heuristic = sum(manhattanDistance(a, b) for a, b in mst) + minDistance
@@ -668,7 +645,6 @@ def wallBetween(food, cell, walls):
     return False
 
 def calculateMST(vertices):
-    # Algoritmo de Kruskal para calcular el MST
     # Devuelve una lista de aristas que componen el MST
 
     # Calcula todas las combinaciones posibles de aristas entre los vértices

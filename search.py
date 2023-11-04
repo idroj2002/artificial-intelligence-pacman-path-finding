@@ -153,6 +153,8 @@ def uniformCostSearch(problem: SearchProblem):
 
     raise Exception("No solution ¯\_(ツ)_/¯")"""
 
+    return generalCostSearch(problem, False)
+
     node = Node(problem.getStartState())
     if problem.isGoalState(node.state):
         return node.get_actions_from_root()
@@ -224,6 +226,8 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
 
     raise Exception("No solution ¯\_(ツ)_/¯")
     """
+    return generalCostSearch(problem, True, heuristic)
+
     node = Node(problem.getStartState())
     if problem.isGoalState(node.state):
         return node.get_actions_from_root()
@@ -257,6 +261,42 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
 
     raise Exception("No solution ¯\_(ツ)_/¯")
 
+def generalCostSearch(problem: SearchProblem, isAStar: bool, heuristic=nullHeuristic):
+    node = Node(problem.getStartState())
+    if problem.isGoalState(node.state):
+        return node.get_actions_from_root()
+
+    expanded = set()
+    meta = {}
+
+    fringe = []
+    fringe.append(node)
+
+    while fringe:
+        if isAStar:
+            node = min(fringe, key=lambda n: n.cost + heuristic(n.state, problem))
+        else:
+            node = min(fringe, key=lambda n: n.cost)
+        fringe.remove(node)
+
+        if problem.isGoalState(node.state):
+            return node.get_actions_from_root()
+
+        if node.state not in expanded or meta[node.state][1] > node.cost:
+            expanded.add(node.state)
+            meta[node.state] = (1, node.cost)
+
+            for s, a, c in problem.getSuccessors(node.state):
+                if s not in expanded or (s in meta and meta[s][1] > node.cost + c):
+                    next_node = Node(
+                        state=s,
+                        action=a,
+                        cost=node.cost + c,
+                        parent=node,
+                    )
+                    fringe.append(next_node)
+
+    raise Exception("No solution ¯\_(ツ)_/¯")
 
 # Abbreviations
 bfs = breadthFirstSearch
